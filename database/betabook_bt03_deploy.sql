@@ -141,6 +141,7 @@ CREATE TABLE IF NOT EXISTS orders (
     subtotal DECIMAL(12,2) NOT NULL,
     shipping_fee DECIMAL(12,2) NOT NULL DEFAULT 0,
     discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+    coupon_code VARCHAR(50) DEFAULT NULL,
     total_amount DECIMAL(12,2) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -293,6 +294,10 @@ CREATE TABLE IF NOT EXISTS home_coupons (
     coupon_code VARCHAR(50) NOT NULL,
     description VARCHAR(255) NOT NULL,
     expires_at DATE NOT NULL,
+    discount_type ENUM('percentage', 'fixed', 'free_shipping') NOT NULL DEFAULT 'percentage',
+    discount_value DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    minimum_order DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    minimum_quantity INT UNSIGNED NOT NULL DEFAULT 0,
     image_path VARCHAR(255),
     sort_order INT NOT NULL DEFAULT 0,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
@@ -416,18 +421,24 @@ ON DUPLICATE KEY UPDATE
     avatar_image = VALUES(avatar_image),
     is_active = VALUES(is_active);
 
-INSERT INTO home_coupons (coupon_code, description, expires_at, image_path, sort_order, is_active) VALUES
-('BETA10', 'Giảm 10% đơn đầu tiên', '2026-12-31', 'voucher.ico', 1, 1),
-('SACH50K', 'Giảm 50.000₫ cho đơn từ 300.000₫', '2026-11-30', 'voucher.ico', 2, 1),
-('FREESHIP', 'Miễn phí vận chuyển toàn quốc', '2026-10-31', 'voucher.ico', 3, 1),
-('COMBO20', 'Giảm 20% khi mua combo 3 cuốn', '2026-12-15', 'voucher.ico', 4, 1),
-('HSSV15', 'Ưu đãi 15% cho học sinh - sinh viên', '2026-12-31', 'voucher.ico', 5, 1),
-('BETA50K', 'Giảm 50.000₫ cho hội viên mới', '2027-02-28', 'voucher.ico', 6, 1)
+INSERT INTO home_coupons
+    (coupon_code, description, expires_at, image_path, sort_order, is_active,
+     discount_type, discount_value, minimum_order, minimum_quantity) VALUES
+('BETA10', 'Giảm 10% đơn đầu tiên', '2026-12-31', 'voucher.ico', 1, 1, 'percentage', 10, 0, 0),
+('SACH50K', 'Giảm 50.000₫ cho đơn từ 300.000₫', '2026-11-30', 'voucher.ico', 2, 1, 'fixed', 50000, 300000, 0),
+('FREESHIP', 'Miễn phí vận chuyển toàn quốc', '2026-10-31', 'voucher.ico', 3, 1, 'free_shipping', 0, 0, 0),
+('COMBO20', 'Giảm 20% khi mua combo 3 cuốn', '2026-12-15', 'voucher.ico', 4, 1, 'percentage', 20, 0, 3),
+('HSSV15', 'Ưu đãi 15% cho học sinh - sinh viên', '2026-12-31', 'voucher.ico', 5, 1, 'percentage', 15, 0, 0),
+('BETA50K', 'Giảm 50.000₫ cho hội viên mới', '2027-02-28', 'voucher.ico', 6, 1, 'fixed', 50000, 0, 0)
 ON DUPLICATE KEY UPDATE
     description = VALUES(description),
     expires_at = VALUES(expires_at),
     image_path = VALUES(image_path),
-    is_active = VALUES(is_active);
+    is_active = VALUES(is_active),
+    discount_type = VALUES(discount_type),
+    discount_value = VALUES(discount_value),
+    minimum_order = VALUES(minimum_order),
+    minimum_quantity = VALUES(minimum_quantity);
 
 INSERT INTO home_events (event_slug, event_date, title, description, image_path, sort_order, is_active) VALUES
 ('xa-kho-mua-thu-2026', '2026-10-04', 'Chương trình xả kho - Mùa thu 2026', 'Đặc biệt giảm giá lên đến 50% cho tất cả các sản phẩm trong chương trình.', 'banner/xả-kho-mùa-thu.png', 1, 1),

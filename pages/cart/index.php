@@ -135,14 +135,32 @@
       <aside class="summary box">
         <h2>Tóm tắt đơn hàng</h2>
         <div class="coupon">
-          <input type="text" placeholder="Nhập Mã giảm" aria-label="Mã giảm">
-          <button type="button" class="button">Áp dụng</button>
+          <input type="text" name="coupon_code" maxlength="50" placeholder="Nhập mã giảm"
+                 aria-label="Mã giảm" <?= $appliedCoupon ? 'disabled' : '' ?>>
+          <button type="submit" class="button" name="cart_action" value="apply_coupon"
+                  formnovalidate <?= $appliedCoupon ? 'disabled' : '' ?>>Áp dụng</button>
         </div>
+        <?php if ($appliedCoupon): ?>
+          <div class="cart-coupon-status" role="status">
+            <strong>Đã áp dụng: <?= e($appliedCoupon['coupon_code']) ?></strong>
+            <p><?= e($appliedCoupon['description']) ?></p>
+            <?php if ($couponConditionError !== null): ?>
+              <p class="cart-coupon-error"><?= e($couponConditionError) ?></p>
+            <?php elseif ($appliedCoupon['discount_type'] === 'free_shipping'): ?>
+              <p>Mã miễn phí vận chuyển được ghi nhận cho đơn hàng.</p>
+            <?php else: ?>
+              <p>Giảm: <?= money($couponDiscount) ?></p>
+            <?php endif; ?>
+            <button type="submit" class="button outline" name="cart_action" value="remove_coupon"
+                    formnovalidate>Gỡ mã</button>
+          </div>
+        <?php endif; ?>
+        <small>Mỗi đơn hàng chỉ áp dụng một mã giảm giá, không cộng dồn mã.</small>
         <div class="row"><span>Tạm tính</span><span><?php echo money($cartTotal); ?></span></div>
-        <div class="row"><span>Giảm giá</span><span>-0đ</span></div>
+        <div class="row"><span>Giảm giá</span><span>-<?php echo money($couponDiscount); ?></span></div>
         <div class="row total">
           <span>Tổng cộng</span>
-          <span class="price"><?php echo money($cartTotal); ?></span>
+          <span class="price"><?php echo money($cartFinalTotal); ?></span>
         </div>
         <label class="agree">
           <input type="checkbox" name="agree_terms" value="1" required>

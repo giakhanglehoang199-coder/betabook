@@ -4,6 +4,10 @@
 </section>
 
 <section class="container section">
+  <p class="discount-event-rule">
+    Mỗi đơn hàng chỉ được áp dụng một mã giảm giá. Nhập mã tại giỏ hàng để áp dụng.
+    <a class="button" href="<?php echo e(url('cart')); ?>">Đến giỏ hàng</a>
+  </p>
   <input class="tab-input" type="radio" name="discount-event-tab" id="tab-magiam" checked>
   <input class="tab-input" type="radio" name="discount-event-tab" id="tab-sukien">
 

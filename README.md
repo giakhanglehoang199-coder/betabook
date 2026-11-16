@@ -70,7 +70,10 @@ Các route không tồn tại và URL không trỏ đến file có thật sẽ h
 Danh sách và chi tiết sách đọc dữ liệu từ database. Giỏ hàng của khách lưu
 trong session; khi đăng nhập, giỏ khách được gộp vào giỏ riêng của tài khoản.
 Có thể đặt hàng bằng COD hoặc chuyển khoản chờ xác nhận; hệ thống lưu đơn và
-chi tiết đơn vào database.
+chi tiết đơn vào database. Mỗi đơn chỉ áp dụng một mã giảm giá; mã đã chọn phải
+được gỡ trước khi đổi mã khác. Mã hỗ trợ giảm theo phần trăm, số tiền cố định
+và điều kiện đơn hàng/số lượng tối thiểu. Phí vận chuyển hiện bằng 0 nên mã
+freeship chưa làm thay đổi tổng tiền.
 
 Trang tài khoản hỗ trợ cập nhật username, họ tên, email, số điện thoại; đổi mật
 khẩu sau khi nhập mật khẩu hiện tại; chọn avatar trong
@@ -144,6 +147,9 @@ Các migration cập nhật schema người dùng:
 - `database/migrations/20261111_order_retention.sql`: thêm mốc lưu trữ đơn 30
   ngày và quyền Quản lý đơn hàng cho Staff. Chỉ chạy một lần sau migration đơn
   hàng nếu database đã có bảng `orders`; file deploy mới đã có sẵn thay đổi này.
+- `database/migrations/20261116_coupon_application.sql`: thêm cấu hình giảm giá
+  và mã đã dùng vào đơn hàng. Chạy một lần sau khi đã có bảng `home_coupons` và
+  `orders`, trước khi sử dụng tính năng mã giảm giá.
 
 Các migration chuyển đổi cấu trúc như role, `address` và avatar chỉ chạy khi
 database còn ở trạng thái cần chuyển đổi; không chạy lại nếu thay đổi đã có.
@@ -179,7 +185,7 @@ Các dấu hiệu sau trong mã nguồn và database cho thấy project vẫn l�
 | Quản lý đơn hàng | Admin và Staff có thể xem/tìm/lọc đơn, cập nhật trạng thái đơn và trạng thái thanh toán. Hủy đơn chưa giao sẽ hoàn tồn kho. | `admin/pages/orders/`; menu cấp cho role `admin` và `staff`. |
 | Xóa dữ liệu | Admin có thể xóa tài khoản (không tự xóa hoặc xóa Admin hoạt động cuối cùng); Staff và Admin có thể xóa đơn. Đơn pending/confirmed bị xóa sẽ hoàn tồn kho. Đơn hoàn thành + đã thanh toán, đã hoàn tiền hoặc đã hủy tự xóa sau 30 ngày đủ điều kiện. | `admin/actions/delete-user.php`, `helpers/orders.php`, `scripts/cleanup_orders.php`. |
 | Lịch sử đơn hàng | Tài khoản đăng nhập xem tối đa 50 đơn gần nhất, thông tin giao hàng, sản phẩm và trạng thái. Khách vẫn có thể đặt nhưng không có lịch sử tài khoản. | `pages/account/index.php` đọc dữ liệu theo `user_id`. |
-| Thanh toán trực tuyến / mã giảm | Chưa kết nối cổng thanh toán; chuyển khoản cần admin xác nhận thủ công. Ô mã giảm được giữ nguyên giao diện nhưng chưa xử lý/áp dụng. | Trạng thái thanh toán được quản lý trong admin; discount hiện bằng 0. |
+| Thanh toán trực tuyến / mã giảm | Chưa kết nối cổng thanh toán; chuyển khoản cần admin xác nhận thủ công. Mỗi đơn chỉ dùng một mã; miễn phí vận chuyển chưa thay đổi tổng vì chưa có phí ship. | Trạng thái thanh toán được quản lý trong admin; mã giảm lưu trong `orders.coupon_code` và giá trị giảm trong `discount_amount`. |
 | Avatar trên header | Khi đăng nhập, icon tài khoản hiển thị avatar hiện được chọn trong hồ sơ. | `layouts/public/header.php`. |
 | Liên hệ | Form trên trang liên hệ hiện hiển thị thông báo cảm ơn nhưng không lưu nội dung gửi. | `pages/contact/action.php` không ghi database; dù schema có `contact_messages` và `action.php` có endpoint JSON riêng, form hiện tại chưa nối vào endpoint đó. |
 | Kiểm thử và vận hành | README chỉ hướng dẫn chạy local; project chưa được mô tả là đã triển khai production. | Cấu hình mặc định trong `config/database.php` dùng database local và tài khoản `root` không mật khẩu. |

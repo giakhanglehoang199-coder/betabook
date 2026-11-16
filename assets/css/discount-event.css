@@ -13,6 +13,17 @@
 
 
 /* ---------- 1. BANNER ĐẦU TRANG ---------- */
+.discount-event-rule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #fff6ef;
+}
+
 .page-banner {
   background: linear-gradient(135deg, var(--cam), #ffae6b);
   color: white;
@@ -135,6 +146,9 @@
 
   .coupon-grid { grid-template-columns: 1fr; }
   .event-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .discount-event-rule { align-items: flex-start; flex-direction: column; }
 }
 
 .discount-event-empty {

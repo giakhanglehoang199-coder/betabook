@@ -2,7 +2,7 @@
 $coupons = $db->fetchAll(
     'SELECT coupon_code, description, expires_at, image_path
      FROM home_coupons
-     WHERE is_active = 1
+     WHERE is_active = 1 AND expires_at >= CURDATE()
      ORDER BY sort_order ASC, coupon_id ASC'
 );
 

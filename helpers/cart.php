@@ -126,11 +126,17 @@ function cart_remove(int $productId): void {
             'DELETE FROM user_cart_items WHERE user_id = ? AND product_id = ?',
             [$userId, $productId]
         );
+        if (!cart_quantities()) {
+            unset($_SESSION['cart_coupon_id']);
+        }
         return;
     }
 
     cart_init();
     unset($_SESSION['cart'][$productId]);
+    if (!$_SESSION['cart']) {
+        unset($_SESSION['cart_coupon_id']);
+    }
 }
 
 function cart_clear(): void {
@@ -141,6 +147,7 @@ function cart_clear(): void {
     }
 
     $_SESSION['cart'] = [];
+    unset($_SESSION['cart_coupon_id']);
 }
 
 function cart_merge_guest(): void {

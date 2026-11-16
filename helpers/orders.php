@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/coupons.php';
 
 function order_status_label(string $status): string {
     $labels = [
@@ -95,6 +96,29 @@ function order_create_from_cart(array $data): int {
 
         $shippingFee = 0.00;
         $discount = 0.00;
+        $couponCode = null;
+        $couponId = filter_var($_SESSION['cart_coupon_id'] ?? null, FILTER_VALIDATE_INT);
+        if ($couponId && $couponId > 0) {
+            $coupon = $db->fetchOne(
+                'SELECT coupon_id, coupon_code, expires_at, discount_type, discount_value,
+                        minimum_order, minimum_quantity
+                 FROM home_coupons
+                 WHERE coupon_id = ? AND is_active = 1 AND expires_at >= CURDATE()
+                 FOR UPDATE',
+                [(int)$couponId]
+            );
+            if (!$coupon) {
+                throw new DomainException('Mã giảm giá đã hết hạn hoặc ngừng hoạt động. Vui lòng áp dụng mã khác.');
+            }
+
+            $quantity = array_sum(array_column($lockedItems, 'quantity'));
+            $couponError = coupon_validation_error($coupon, $subtotal, (int)$quantity);
+            if ($couponError !== null) {
+                throw new DomainException($couponError);
+            }
+            $discount = coupon_discount_amount($coupon, $subtotal);
+            $couponCode = $coupon['coupon_code'];
+        }
         $total = $subtotal + $shippingFee - $discount;
         $userId = filter_var($_SESSION['user']['user_id'] ?? null, FILTER_VALIDATE_INT);
         $userId = $userId && $userId > 0 ? (int)$userId : null;
@@ -104,8 +128,8 @@ function order_create_from_cart(array $data): int {
             'INSERT INTO orders
                 (order_code, user_id, customer_name, email, phone, address_line,
                  ward, district, city, customer_note, payment_method, payment_status,
-                 order_status, subtotal, shipping_fee, discount_amount, total_amount)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                 order_status, subtotal, shipping_fee, discount_amount, coupon_code, total_amount)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 $orderCode,
                 $userId,
@@ -123,6 +147,7 @@ function order_create_from_cart(array $data): int {
                 $subtotal,
                 $shippingFee,
                 $discount,
+                $couponCode,
                 $total,
             ]
         );
@@ -161,6 +186,7 @@ function order_create_from_cart(array $data): int {
         if ($userId === null) {
             cart_clear();
         }
+        unset($_SESSION['cart_coupon_id']);
         return $orderId;
     } catch (Throwable $error) {
         if ($connection->inTransaction()) {

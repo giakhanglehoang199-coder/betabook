@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../helpers/cart.php';
 require_once __DIR__ . '/../../helpers/orders.php';
+require_once __DIR__ . '/../../helpers/coupons.php';
 
 $cartError = null;
 $renderCheckoutErrors = false;
@@ -115,6 +116,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } elseif ($action === 'clear') {
             cart_clear();
+        } elseif ($action === 'apply_coupon') {
+            $code = strtoupper(trim(
+                is_string($_POST['coupon_code'] ?? null) ? $_POST['coupon_code'] : ''
+            ));
+            $items = cart_items();
+            $subtotal = cart_total($items);
+            $quantity = array_sum(array_column($items, 'cart_quantity'));
+
+            if (!$items) {
+                $cartError = 'Vui lòng thêm sách vào giỏ hàng trước khi áp dụng mã.';
+            } elseif (isset($_SESSION['cart_coupon_id'])) {
+                $cartError = 'Mỗi đơn hàng chỉ được áp dụng một mã. Hãy gỡ mã hiện tại trước khi áp dụng mã khác.';
+            } elseif ($code === '' || strlen($code) > 50) {
+                $cartError = 'Vui lòng nhập mã giảm giá hợp lệ.';
+            } else {
+                $coupon = coupon_fetch_active($code);
+                if (!$coupon) {
+                    $cartError = 'Mã giảm giá không hợp lệ, đã hết hạn hoặc không còn hoạt động.';
+                } else {
+                    $cartError = coupon_validation_error($coupon, $subtotal, (int)$quantity);
+                    if ($cartError === null) {
+                        $_SESSION['cart_coupon_id'] = (int)$coupon['coupon_id'];
+                        $_SESSION['flash_message'] = 'Đã áp dụng mã ' . $coupon['coupon_code'] . '.';
+                        redirect(url('cart'));
+                    }
+                }
+            }
+        } elseif ($action === 'remove_coupon') {
+            unset($_SESSION['cart_coupon_id']);
+            $_SESSION['flash_message'] = 'Đã gỡ mã giảm giá khỏi giỏ hàng.';
+            redirect(url('cart'));
         } elseif ($action === 'checkout') {
             $errors = [];
             foreach ($checkoutData as $field => $default) {
@@ -189,6 +221,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $cartItems = cart_items();
 $cartTotal = cart_total($cartItems);
+$cartQuantity = (int)array_sum(array_column($cartItems, 'cart_quantity'));
+$appliedCoupon = null;
+$couponDiscount = 0.0;
+$couponConditionError = null;
+$couponId = filter_var($_SESSION['cart_coupon_id'] ?? null, FILTER_VALIDATE_INT);
+if ($couponId && $couponId > 0) {
+    if (!$cartItems) {
+        unset($_SESSION['cart_coupon_id']);
+    } else {
+        $appliedCoupon = $db->fetchOne(
+            'SELECT coupon_id, coupon_code, description, expires_at, discount_type, discount_value,
+                    minimum_order, minimum_quantity
+             FROM home_coupons
+             WHERE coupon_id = ? AND is_active = 1 AND expires_at >= CURDATE()',
+            [(int)$couponId]
+        );
+        if (!$appliedCoupon) {
+            unset($_SESSION['cart_coupon_id']);
+            $_SESSION['flash_message'] = 'Mã giảm giá đã hết hạn hoặc ngừng hoạt động nên đã được gỡ.';
+        } else {
+            $couponConditionError = coupon_validation_error($appliedCoupon, $cartTotal, $cartQuantity);
+            if ($couponConditionError === null) {
+                $couponDiscount = coupon_discount_amount($appliedCoupon, $cartTotal);
+            }
+        }
+    }
+}
+$cartFinalTotal = max(0, $cartTotal - $couponDiscount);
 $pageTitle = 'Giỏ hàng & thanh toán - BetaBook';
 $bodyClass = 'cart-page';
 $extraCss = [asset('css/cart.css') . '?v=' . filemtime(__DIR__ . '/../../assets/css/cart.css')];
