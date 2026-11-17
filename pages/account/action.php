@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $accountError = 'Phiên làm việc đã hết hạn. Vui lòng tải lại trang và thử lại.';
     } elseif (($_POST['account_action'] ?? '') === 'logout') {
         unset($_SESSION['cart']);
+        unset($_SESSION['cart_coupon_id']);
         unset($_SESSION['user'], $_SESSION['admin_role_id'], $_SESSION['admin_role'], $_SESSION['csrf_token'], $_SESSION['account_notice']);
         session_regenerate_id(true);
         $_SESSION['login_notice'] = 'Bạn đã đăng xuất.';
@@ -166,7 +167,7 @@ $accountUser = db()->fetchOne(
 );
 
 if (!$accountUser) {
-    unset($_SESSION['user'], $_SESSION['admin_role_id'], $_SESSION['admin_role'], $_SESSION['csrf_token']);
+    unset($_SESSION['user'], $_SESSION['admin_role_id'], $_SESSION['admin_role'], $_SESSION['csrf_token'], $_SESSION['cart_coupon_id']);
     session_regenerate_id(true);
     redirect(url('login'));
 }

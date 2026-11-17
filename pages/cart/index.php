@@ -134,12 +134,16 @@
 
       <aside class="summary box">
         <h2>Tóm tắt đơn hàng</h2>
-        <div class="coupon">
-          <input type="text" name="coupon_code" maxlength="50" placeholder="Nhập mã giảm"
-                 aria-label="Mã giảm" <?= $appliedCoupon ? 'disabled' : '' ?>>
-          <button type="submit" class="button" name="cart_action" value="apply_coupon"
-                  formnovalidate <?= $appliedCoupon ? 'disabled' : '' ?>>Áp dụng</button>
-        </div>
+        <?php if ($isLoggedIn): ?>
+          <div class="coupon">
+            <input type="text" name="coupon_code" maxlength="50" placeholder="Nhập mã giảm"
+                   aria-label="Mã giảm" <?= $appliedCoupon ? 'disabled' : '' ?>>
+            <button type="submit" class="button" name="cart_action" value="apply_coupon"
+                    formnovalidate <?= $appliedCoupon ? 'disabled' : '' ?>>Áp dụng</button>
+          </div>
+        <?php else: ?>
+          <p>Vui lòng <a href="<?= e(url('login')) ?>">đăng nhập</a> để sử dụng mã giảm giá.</p>
+        <?php endif; ?>
         <?php if ($appliedCoupon): ?>
           <div class="cart-coupon-status" role="status">
             <strong>Đã áp dụng: <?= e($appliedCoupon['coupon_code']) ?></strong>

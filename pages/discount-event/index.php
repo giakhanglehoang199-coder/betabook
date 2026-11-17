@@ -29,7 +29,16 @@
               <span class="code"><?php echo e($coupon['coupon_code']); ?></span>
               <h3><?php echo e($coupon['description']); ?></h3>
               <small>Hạn dùng: <?php echo e(date('d/m/Y', strtotime($coupon['expires_at']))); ?></small>
-              <a class="button" href="<?php echo e(url('booklist')); ?>">Khám phá sách</a>
+              <?php if ($isLoggedIn): ?>
+                <form action="<?php echo e(url('cart')); ?>" method="post">
+                  <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
+                  <input type="hidden" name="cart_action" value="apply_coupon">
+                  <input type="hidden" name="coupon_code" value="<?php echo e($coupon['coupon_code']); ?>">
+                  <button class="button" type="submit">Sử dụng</button>
+                </form>
+              <?php else: ?>
+                <a class="button" href="<?php echo e(url('booklist')); ?>">Khám phá sách</a>
+              <?php endif; ?>
             </article>
           <?php endforeach; ?>
         <?php else: ?>

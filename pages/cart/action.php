@@ -18,6 +18,10 @@ $checkoutData = [
 ];
 
 $userId = filter_var($_SESSION['user']['user_id'] ?? null, FILTER_VALIDATE_INT);
+$isLoggedIn = $userId !== false && $userId !== null && $userId > 0;
+if (!$isLoggedIn) {
+    unset($_SESSION['cart_coupon_id']);
+}
 if ($userId && $userId > 0) {
     $account = $db->fetchOne(
         'SELECT full_name, email, phone FROM users WHERE user_id = ? AND is_active = 1',
@@ -124,7 +128,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $subtotal = cart_total($items);
             $quantity = array_sum(array_column($items, 'cart_quantity'));
 
-            if (!$items) {
+            if (!$isLoggedIn) {
+                unset($_SESSION['cart_coupon_id']);
+                $cartError = 'Vui lòng đăng nhập để sử dụng mã giảm giá.';
+            } elseif (!$items) {
                 $cartError = 'Vui lòng thêm sách vào giỏ hàng trước khi áp dụng mã.';
             } elseif (isset($_SESSION['cart_coupon_id'])) {
                 $cartError = 'Mỗi đơn hàng chỉ được áp dụng một mã. Hãy gỡ mã hiện tại trước khi áp dụng mã khác.';

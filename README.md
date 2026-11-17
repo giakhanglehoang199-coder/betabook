@@ -72,8 +72,8 @@ trong session; khi đăng nhập, giỏ khách được gộp vào giỏ riêng 
 Có thể đặt hàng bằng COD hoặc chuyển khoản chờ xác nhận; hệ thống lưu đơn và
 chi tiết đơn vào database. Mỗi đơn chỉ áp dụng một mã giảm giá; mã đã chọn phải
 được gỡ trước khi đổi mã khác. Mã hỗ trợ giảm theo phần trăm, số tiền cố định
-và điều kiện đơn hàng/số lượng tối thiểu. Phí vận chuyển hiện bằng 0 nên mã
-freeship chưa làm thay đổi tổng tiền.
+và điều kiện đơn hàng/số lượng tối thiểu; chỉ tài khoản đã đăng nhập mới được
+sử dụng mã. Phí vận chuyển hiện bằng 0 nên mã freeship chưa làm thay đổi tổng tiền.
 
 Trang tài khoản hỗ trợ cập nhật username, họ tên, email, số điện thoại; đổi mật
 khẩu sau khi nhập mật khẩu hiện tại; chọn avatar trong

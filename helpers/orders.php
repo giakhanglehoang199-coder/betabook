@@ -97,8 +97,14 @@ function order_create_from_cart(array $data): int {
         $shippingFee = 0.00;
         $discount = 0.00;
         $couponCode = null;
+        $userId = filter_var($_SESSION['user']['user_id'] ?? null, FILTER_VALIDATE_INT);
+        $userId = $userId && $userId > 0 ? (int)$userId : null;
         $couponId = filter_var($_SESSION['cart_coupon_id'] ?? null, FILTER_VALIDATE_INT);
         if ($couponId && $couponId > 0) {
+            if ($userId === null) {
+                throw new DomainException('Vui lòng đăng nhập để sử dụng mã giảm giá.');
+            }
+
             $coupon = $db->fetchOne(
                 'SELECT coupon_id, coupon_code, expires_at, discount_type, discount_value,
                         minimum_order, minimum_quantity
@@ -120,8 +126,6 @@ function order_create_from_cart(array $data): int {
             $couponCode = $coupon['coupon_code'];
         }
         $total = $subtotal + $shippingFee - $discount;
-        $userId = filter_var($_SESSION['user']['user_id'] ?? null, FILTER_VALIDATE_INT);
-        $userId = $userId && $userId > 0 ? (int)$userId : null;
         $orderCode = 'BB-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(6)));
 
         $db->execute(

@@ -13,6 +13,9 @@ $events = $db->fetchAll(
      ORDER BY sort_order ASC, event_id ASC'
 );
 
+$sessionUserId = filter_var($_SESSION['user']['user_id'] ?? null, FILTER_VALIDATE_INT);
+$isLoggedIn = $sessionUserId !== false && $sessionUserId !== null && $sessionUserId > 0;
+
 $pageTitle = 'Mã giảm & Sự kiện';
 $bodyClass = 'discount-event-page';
 $extraCss = [asset('css/discount-event.css')];
