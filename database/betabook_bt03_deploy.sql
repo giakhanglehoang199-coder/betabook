@@ -250,6 +250,7 @@ VALUES
     ('promotions', 'Mã giảm & Sự kiện', 'promotions', 'promotions', 'bi bi-ticket-perforated', 0, 40, 1),
     ('users', 'Quản lý tài khoản', 'users', 'users,users-form', 'bi bi-people', 0, 5, 1),
     ('orders', 'Quản lý đơn hàng', 'orders', 'orders', 'bi bi-receipt', 0, 25, 1),
+    ('contact', 'Tin nhắn liên hệ', 'contact', 'contact', 'bi bi-envelope', 0, 26, 1),
     ('public', 'Quay lại Public', NULL, '', 'bi bi-box-arrow-up-right', 1, 90, 1)
 ON DUPLICATE KEY UPDATE
     label = VALUES(label), page_key = VALUES(page_key), active_pages = VALUES(active_pages),
@@ -259,7 +260,7 @@ ON DUPLICATE KEY UPDATE
 INSERT IGNORE INTO admin_menu_permissions (role_id, menu_id)
 SELECT r.role_id, m.menu_id
 FROM roles r CROSS JOIN admin_menu_items m
-WHERE r.role_key = 'admin' AND m.menu_key IN ('dashboard', 'books', 'categories', 'promotions', 'users', 'orders', 'public');
+WHERE r.role_key = 'admin' AND m.menu_key IN ('dashboard', 'books', 'categories', 'promotions', 'users', 'orders', 'contact', 'public');
 
 INSERT IGNORE INTO admin_menu_permissions (role_id, menu_id)
 SELECT r.role_id, m.menu_id
@@ -271,6 +272,12 @@ SELECT r.role_id, m.menu_id, 1
 FROM roles r
 CROSS JOIN admin_menu_items m
 WHERE r.role_key = 'staff' AND m.menu_key = 'orders';
+
+INSERT IGNORE INTO admin_menu_permissions (role_id, menu_id, can_view)
+SELECT r.role_id, m.menu_id, 1
+FROM roles r
+CROSS JOIN admin_menu_items m
+WHERE r.role_key = 'admin' AND m.menu_key = 'contact';
 
 CREATE TABLE IF NOT EXISTS home_content (
     content_key VARCHAR(100) PRIMARY KEY,

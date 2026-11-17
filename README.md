@@ -91,13 +91,15 @@ khẩu sau khi nhập mật khẩu hiện tại; chọn avatar trong
 | Khuyến mãi/sự kiện | `/admin/?page=promotions` |
 | Quản lý tài khoản | `/admin/?page=users` |
 | Quản lý đơn hàng | `/admin/?page=orders` |
+| Tin nhắn liên hệ | `/admin/?page=contact` |
 
 Các màn hình quản trị cần người dùng đăng nhập và có role ID `1` hoặc `2`;
 trên database mới, thứ tự role là `1` quản trị viên, `2` nhân viên và `3` khách
 hàng. Quyền xem từng menu/trang và quyền thực hiện action được kiểm tra dựa
 trên `admin_menu_permissions`. Admin và Staff được cấp quyền quản lý đơn hàng;
-chỉ Admin được xóa tài khoản. Menu được lấy từ `admin_menu_items`, nhưng mỗi
-route và action vẫn phải được đăng ký trong `admin/index.php`.
+chỉ Admin được xóa tài khoản và xem tin nhắn liên hệ. Menu được lấy từ
+`admin_menu_items`, nhưng mỗi route và action vẫn phải được đăng ký trong
+`admin/index.php`.
 
 Quản lý tài khoản dành cho Admin: tìm kiếm, tạo, cập nhật và xóa tài khoản,
 vai trò, trạng thái và avatar. Không thể xóa tài khoản đang đăng nhập hoặc
@@ -150,6 +152,8 @@ Các migration cập nhật schema người dùng:
 - `database/migrations/20261116_coupon_application.sql`: thêm cấu hình giảm giá
   và mã đã dùng vào đơn hàng. Chạy một lần sau khi đã có bảng `home_coupons` và
   `orders`, trước khi sử dụng tính năng mã giảm giá.
+- `database/migrations/20261117_contact_messages_admin.sql`: thêm menu và quyền
+  xem hộp thư liên hệ cho Admin; tạo `contact_messages` nếu database chưa có.
 
 Các migration chuyển đổi cấu trúc như role, `address` và avatar chỉ chạy khi
 database còn ở trạng thái cần chuyển đổi; không chạy lại nếu thay đổi đã có.
@@ -187,7 +191,7 @@ Các dấu hiệu sau trong mã nguồn và database cho thấy project vẫn l�
 | Lịch sử đơn hàng | Tài khoản đăng nhập xem tối đa 50 đơn gần nhất, thông tin giao hàng, sản phẩm và trạng thái. Khách vẫn có thể đặt nhưng không có lịch sử tài khoản. | `pages/account/index.php` đọc dữ liệu theo `user_id`. |
 | Thanh toán trực tuyến / mã giảm | Chưa kết nối cổng thanh toán; chuyển khoản cần admin xác nhận thủ công. Mỗi đơn chỉ dùng một mã; miễn phí vận chuyển chưa thay đổi tổng vì chưa có phí ship. | Trạng thái thanh toán được quản lý trong admin; mã giảm lưu trong `orders.coupon_code` và giá trị giảm trong `discount_amount`. |
 | Avatar trên header | Khi đăng nhập, icon tài khoản hiển thị avatar hiện được chọn trong hồ sơ. | `layouts/public/header.php`. |
-| Liên hệ | Form trên trang liên hệ hiện hiển thị thông báo cảm ơn nhưng không lưu nội dung gửi. | `pages/contact/action.php` không ghi database; dù schema có `contact_messages` và `action.php` có endpoint JSON riêng, form hiện tại chưa nối vào endpoint đó. |
+| Liên hệ | Biểu mẫu lưu tên, email, số điện thoại, chủ đề, nội dung và thời điểm gửi vào `contact_messages`; Admin có thể tìm kiếm, xem và đánh dấu đã đọc trong hộp thư admin. | `pages/contact/action.php`, `admin/pages/contact/` và quyền menu `contact`. |
 | Kiểm thử và vận hành | README chỉ hướng dẫn chạy local; project chưa được mô tả là đã triển khai production. | Cấu hình mặc định trong `config/database.php` dùng database local và tài khoản `root` không mật khẩu. |
 
 Một số phần đã hoạt động như đọc danh sách/chi tiết sách, quản lý dữ liệu trong
