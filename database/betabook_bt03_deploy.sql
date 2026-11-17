@@ -265,7 +265,7 @@ WHERE r.role_key = 'admin' AND m.menu_key IN ('dashboard', 'books', 'categories'
 INSERT IGNORE INTO admin_menu_permissions (role_id, menu_id)
 SELECT r.role_id, m.menu_id
 FROM roles r CROSS JOIN admin_menu_items m
-WHERE r.role_key = 'staff' AND m.menu_key IN ('dashboard', 'books', 'public');
+WHERE r.role_key = 'staff' AND m.menu_key IN ('dashboard', 'books', 'promotions', 'contact', 'public');
 
 INSERT IGNORE INTO admin_menu_permissions (role_id, menu_id, can_view)
 SELECT r.role_id, m.menu_id, 1

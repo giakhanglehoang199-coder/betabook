@@ -96,8 +96,8 @@ khẩu sau khi nhập mật khẩu hiện tại; chọn avatar trong
 Các màn hình quản trị cần người dùng đăng nhập và có role ID `1` hoặc `2`;
 trên database mới, thứ tự role là `1` quản trị viên, `2` nhân viên và `3` khách
 hàng. Quyền xem từng menu/trang và quyền thực hiện action được kiểm tra dựa
-trên `admin_menu_permissions`. Admin và Staff được cấp quyền quản lý đơn hàng;
-chỉ Admin được xóa tài khoản và xem tin nhắn liên hệ. Menu được lấy từ
+trên `admin_menu_permissions`. Admin và Staff được cấp quyền quản lý đơn hàng,
+mã giảm giá/sự kiện và tin nhắn liên hệ; chỉ Admin được xóa tài khoản. Menu được lấy từ
 `admin_menu_items`, nhưng mỗi route và action vẫn phải được đăng ký trong
 `admin/index.php`.
 
@@ -154,6 +154,8 @@ Các migration cập nhật schema người dùng:
   `orders`, trước khi sử dụng tính năng mã giảm giá.
 - `database/migrations/20261117_contact_messages_admin.sql`: thêm menu và quyền
   xem hộp thư liên hệ cho Admin; tạo `contact_messages` nếu database chưa có.
+- `database/migrations/20261117_staff_promotions_contact_permissions.sql`:
+  cấp quyền mã giảm giá/sự kiện và tin nhắn liên hệ cho vai trò Staff.
 
 Các migration chuyển đổi cấu trúc như role, `address` và avatar chỉ chạy khi
 database còn ở trạng thái cần chuyển đổi; không chạy lại nếu thay đổi đã có.
