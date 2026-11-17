@@ -21,7 +21,7 @@
       <div class="coupon-grid">
         <?php if ($coupons): ?>
           <?php foreach ($coupons as $coupon): ?>
-            <article class="coupon-card">
+            <article class="coupon-card<?= $isLoggedIn ? '' : ' coupon-card-locked' ?>">
               <div class="img-box">
                 <img src="<?php echo e(asset('images/' . ($coupon['image_path'] ?: 'voucher.ico'))); ?>"
                      alt="Mã <?php echo e($coupon['coupon_code']); ?>">
@@ -37,7 +37,7 @@
                   <button class="button" type="submit">Sử dụng</button>
                 </form>
               <?php else: ?>
-                <a class="button" href="<?php echo e(url('booklist')); ?>">Khám phá sách</a>
+                <a class="button" href="<?php echo e(url('login')); ?>">Đăng nhập để sử dụng</a>
               <?php endif; ?>
             </article>
           <?php endforeach; ?>

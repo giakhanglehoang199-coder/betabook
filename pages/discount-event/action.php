@@ -18,4 +18,4 @@ $isLoggedIn = $sessionUserId !== false && $sessionUserId !== null && $sessionUse
 
 $pageTitle = 'Mã giảm & Sự kiện';
 $bodyClass = 'discount-event-page';
-$extraCss = [asset('css/discount-event.css')];
+$extraCss = [asset('css/discount-event.css') . '?v=' . filemtime(__DIR__ . '/../../assets/css/discount-event.css')];

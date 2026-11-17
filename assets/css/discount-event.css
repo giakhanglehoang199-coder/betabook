@@ -87,6 +87,7 @@
   padding: 18px;
   text-align: center;
 }
+.coupon-card-locked { opacity: .55; }
 .coupon-card .img-box {
   height: 120px;
   border-radius: 8px;
@@ -115,6 +116,7 @@
 .coupon-card small { color: #999999; display: block; margin-bottom: 12px; }
 .coupon-card form { margin-top: auto; }
 .coupon-card .button { margin-top: auto; }
+.coupon-card form .button { cursor: pointer; }
 
 
 /* ---------- 4. DANH SÁCH SỰ KIỆN ---------- */
